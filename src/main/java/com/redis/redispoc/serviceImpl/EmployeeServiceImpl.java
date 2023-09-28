@@ -3,9 +3,9 @@ package com.redis.redispoc.serviceImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.modelmapper.ModelMapper;
 
 import com.redis.redispoc.bean.EmployeeBean;
 import com.redis.redispoc.exception.ResourceNotFoundException;
@@ -22,14 +22,22 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private ModelMapper modelMapper;
 
+    // @Autowired
+    // private RedisTemplate template;
+
+    public static final String HASH_KEY = "Employee";
+
+
     /**
      * fetch the list of emp
      */
     @Override
     public List<EmpDto> getAllEmp() {
-        List<EmployeeBean> empBeans = this.empRepo.findAll();
-        List<EmpDto> empDtos = empBeans.stream().map(empBean->this.empToDto(empBean)).collect(Collectors.toList());
-        return empDtos;
+         List<EmployeeBean> empBeans = this.empRepo.findAll();
+         List<EmpDto> empDtos = empBeans.stream().map(empBean->this.empToDto(empBean)).collect(Collectors.toList());
+         return empDtos;
+       // return template.opsForHash().values(HASH_KEY);
+
     }
 
     
@@ -42,6 +50,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeBean employeeBean = this.empRepo.findById(Id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee Not Found with the Id:","Id",Id));
         this.empRepo.delete(employeeBean);
+
+    }
+
+
+    /**
+     * get Single Emp data by its Id
+     */
+    @Override
+    public EmpDto getEmpById(String Id) {
+    
+         EmployeeBean empBeans = this.empRepo.findById(Id).orElseThrow(()->new ResourceNotFoundException("Emp Not Found: ", "Id", Id));
+    
+         return this.empToDto(empBeans);
+      //  return (EmpDto) template.opsForHash().get(HASH_KEY,Id);
+
 
     }
 
@@ -62,15 +85,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
 
-    /**
-     * get Single Emp data by its Id
-     */
-    @Override
-    public EmpDto getEmpById(String Id) {
     
-        EmployeeBean empBeans = this.empRepo.findById(Id).orElseThrow(()->new ResourceNotFoundException("Emp Not Found: ", "Id", Id));
-    
-        return this.empToDto(empBeans);
-    }
 
 }

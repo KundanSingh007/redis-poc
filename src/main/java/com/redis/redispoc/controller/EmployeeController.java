@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,7 +21,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
-@EnableCaching
 @RestController
 @RequestMapping("/api/v1/emp-status")
 @CrossOrigin("*")
@@ -50,10 +48,10 @@ public class EmployeeController {
      * @throws Exception
      */
     @Operation(summary = "This is to fetch the employee on the basis of Id")
-    @Cacheable(key = "#id", value = "Employee", unless = "#result.price > 1000")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Details of the employee Found", content = {
                     @Content(mediaType = "application/json") }) })
+    @Cacheable(key = "#Id", value = "Employee", unless = "#result.price > 1000")
     @GetMapping("fetch-all/{Id}")
     public ResponseEntity<EmpDto> fetchById(@PathVariable("Id") String Id) throws Exception {
         return ResponseEntity.ok(empService.getEmpById(Id));
